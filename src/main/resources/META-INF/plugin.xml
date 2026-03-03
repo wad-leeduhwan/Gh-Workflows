@@ -5,11 +5,22 @@
     <vendor>wad-leeduhwan</vendor>
 
     <depends>com.intellij.modules.platform</depends>
+    <depends>Git4Idea</depends>
+    <depends>org.jetbrains.plugins.github</depends>
 
-    <resource-bundle>messages.MyBundle</resource-bundle>
+    <resource-bundle>messages.WorkflowBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow factoryClass="com.github.wadleeduhwan.ghworkflows.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
-        <postStartupActivity implementation="com.github.wadleeduhwan.ghworkflows.startup.MyProjectActivity" />
+        <toolWindow id="GitHub Workflows"
+                    anchor="right"
+                    factoryClass="com.github.wadleeduhwan.ghworkflows.toolWindow.WorkflowToolWindowFactory"
+                    icon="com.github.wadleeduhwan.ghworkflows.icons.WorkflowIcons.ToolWindow"/>
+
+        <projectService
+                serviceImplementation="com.github.wadleeduhwan.ghworkflows.services.GitHubWorkflowService"/>
+
+        <notificationGroup id="GhWorkflows.Notification"
+                           displayType="BALLOON"
+                           isLogByDefault="true"/>
     </extensions>
 </idea-plugin>
