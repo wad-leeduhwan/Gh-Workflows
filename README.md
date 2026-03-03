@@ -1,52 +1,49 @@
 # Gh-Workflows
 
 ![Build](https://github.com/wad-leeduhwan/Gh-Workflows/workflows/Build/badge.svg)
-[![Version](https://img.shields.io/jetbrains/plugin/v/MARKETPLACE_ID.svg)](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID)
-[![Downloads](https://img.shields.io/jetbrains/plugin/d/MARKETPLACE_ID.svg)](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID)
 
-## Template ToDo list
-- [x] Create a new [IntelliJ Platform Plugin Template][template] project.
-- [ ] Get familiar with the [template documentation][template].
-- [ ] Adjust the [pluginGroup](./gradle.properties) and [pluginName](./gradle.properties), as well as the [id](./src/main/resources/META-INF/plugin.xml) and [sources package](./src/main/kotlin).
-- [ ] Adjust the plugin description in `README` (see [Tips][docs:plugin-description])
-- [ ] Review the [Legal Agreements](https://plugins.jetbrains.com/docs/marketplace/legal-agreements.html?from=IJPluginTemplate).
-- [ ] [Publish a plugin manually](https://plugins.jetbrains.com/docs/intellij/publishing-plugin.html?from=IJPluginTemplate) for the first time.
-- [ ] Set the `MARKETPLACE_ID` in the above README badges. You can obtain it once the plugin is published to JetBrains Marketplace.
-- [ ] Set the [Plugin Signing](https://plugins.jetbrains.com/docs/intellij/plugin-signing.html?from=IJPluginTemplate) related [secrets](https://github.com/JetBrains/intellij-platform-plugin-template#environment-variables).
-- [ ] Set the [Deployment Token](https://plugins.jetbrains.com/docs/marketplace/plugin-upload.html?from=IJPluginTemplate).
-- [ ] Click the <kbd>Watch</kbd> button on the top of the [IntelliJ Platform Plugin Template][template] to be notified about releases containing new features and fixes.
-- [ ] Configure the [CODECOV_TOKEN](https://docs.codecov.com/docs/quick-start) secret for automated test coverage reports on PRs
+IntelliJ IDE에서 GitHub Actions 워크플로우를 조회, 모니터링, 트리거할 수 있는 플러그인입니다.
 
 <!-- Plugin description -->
-This Fancy IntelliJ Platform Plugin is going to be your implementation of the brilliant ideas that you have.
+**Gh-Workflows** lets you browse, monitor, and trigger GitHub Actions workflows directly from your IntelliJ-based IDE.
 
-This specific section is a source for the [plugin.xml](/src/main/resources/META-INF/plugin.xml) file which will be extracted by the [Gradle](/build.gradle.kts) during the build process.
-
-To keep everything working, do not remove `<!-- ... -->` sections. 
+### Features
+- **Workflow Browser** — Tree view showing all workflows and recent runs with status icons
+- **Trigger Workflows** — Run `workflow_dispatch` workflows with branch/tag selection and input parameters
+- **Open in Browser** — Jump to any workflow or run on GitHub
+- **Auto-detect Repository** — Automatically detects GitHub repository from git remotes
+- **Seamless Auth** — Uses your IntelliJ GitHub account or a manual Personal Access Token
 <!-- Plugin description end -->
+
+## Requirements
+
+- IntelliJ IDEA 2025.2+
+- Git and GitHub plugins enabled
+- GitHub account configured in IDE (or a Personal Access Token with `repo` and `workflow` scopes)
 
 ## Installation
 
-- Using the IDE built-in plugin system:
+- **From disk:**
 
-  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>Marketplace</kbd> > <kbd>Search for "Gh-Workflows"</kbd> >
-  <kbd>Install</kbd>
+  Download the [latest release](https://github.com/wad-leeduhwan/Gh-Workflows/releases/latest) and install using
+  <kbd>Settings</kbd> > <kbd>Plugins</kbd> > <kbd>Install plugin from disk...</kbd>
 
-- Using JetBrains Marketplace:
+## Usage
 
-  Go to [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID) and install it by clicking the <kbd>Install to ...</kbd> button in case your IDE is running.
+1. Open a project with a GitHub remote
+2. Open the **GitHub Workflows** tool window (right sidebar)
+3. Browse workflows and recent runs
+4. Click the trigger button to dispatch a workflow with custom inputs
 
-  You can also download the [latest release](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID/versions) from JetBrains Marketplace and install it manually using
-  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
+## Building from Source
 
-- Manually:
+```bash
+./gradlew buildPlugin -x buildSearchableOptions
+```
 
-  Download the [latest release](https://github.com/wad-leeduhwan/Gh-Workflows/releases/latest) and install it manually using
-  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
-
+The plugin ZIP will be generated in `build/distributions/`.
 
 ---
 Plugin based on the [IntelliJ Platform Plugin Template][template].
 
 [template]: https://github.com/JetBrains/intellij-platform-plugin-template
-[docs:plugin-description]: https://plugins.jetbrains.com/docs/intellij/plugin-user-experience.html#plugin-description-and-presentation

@@ -3,5 +3,13 @@
 # Gh-Workflows Changelog
 
 ## [Unreleased]
+
+## [0.0.1]
 ### Added
-- Initial scaffold created from [IntelliJ Platform Plugin Template](https://github.com/JetBrains/intellij-platform-plugin-template)
+- Workflow browser with tree view displaying workflows and recent runs
+- Status icons for workflow run states (success, failure, in-progress, queued, cancelled, skipped)
+- Trigger `workflow_dispatch` workflows with branch/tag selection and input parameters
+- Open workflow or run in browser
+- Auto-detect GitHub repository from git remotes
+- Authentication via IntelliJ GitHub account or manual Personal Access Token
+- Settings dialog for token and repository configuration
