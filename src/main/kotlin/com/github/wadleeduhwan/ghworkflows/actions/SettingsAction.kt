@@ -4,6 +4,7 @@ import com.github.wadleeduhwan.ghworkflows.WorkflowBundle
 import com.github.wadleeduhwan.ghworkflows.auth.GitHubTokenManager
 import com.github.wadleeduhwan.ghworkflows.git.GitHubRepo
 import com.github.wadleeduhwan.ghworkflows.services.GitHubWorkflowService
+import com.github.wadleeduhwan.ghworkflows.services.WorkflowSettingsState
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -13,7 +14,10 @@ import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBTextField
 import com.intellij.util.ui.FormBuilder
+import javax.swing.JCheckBox
 import javax.swing.JComponent
+import javax.swing.JSpinner
+import javax.swing.SpinnerNumberModel
 
 class SettingsAction : AnAction(
     WorkflowBundle.message("action.settings"),
@@ -35,6 +39,12 @@ class SettingsAction : AnAction(
 
             val repoText = dialog.getRepoOverride()
             service.overrideRepo = parseOwnerRepo(repoText)
+
+            // Save auto-refresh settings
+            val settings = WorkflowSettingsState.getInstance(project)
+            settings.autoRefreshEnabled = dialog.getAutoRefreshEnabled()
+            settings.autoRefreshIntervalMinutes = dialog.getAutoRefreshInterval()
+            service.startAutoRefresh()
         }
     }
 
@@ -60,8 +70,25 @@ private class SettingsDialog(
         text = service.overrideRepo?.fullName ?: ""
     }
 
+    private val settings = WorkflowSettingsState.getInstance(project)
+
+    private val autoRefreshCheckBox = JCheckBox(
+        WorkflowBundle.message("dialog.autoRefresh.label"),
+    ).apply {
+        isSelected = settings.autoRefreshEnabled
+    }
+
+    private val intervalSpinner = JSpinner(
+        SpinnerNumberModel(settings.autoRefreshIntervalMinutes, 1, 120, 1),
+    ).apply {
+        isEnabled = autoRefreshCheckBox.isSelected
+    }
+
     init {
         title = WorkflowBundle.message("dialog.settings.title")
+        autoRefreshCheckBox.addActionListener {
+            intervalSpinner.isEnabled = autoRefreshCheckBox.isSelected
+        }
         init()
     }
 
@@ -105,10 +132,24 @@ private class SettingsDialog(
         })
         builder.addTooltip(WorkflowBundle.message("dialog.repo.hint"))
 
+        builder.addSeparator()
+
+        // Auto-refresh settings
+        builder.addComponent(autoRefreshCheckBox)
+        builder.addLabeledComponent(
+            WorkflowBundle.message("dialog.autoRefresh.interval.label"),
+            intervalSpinner,
+        )
+        builder.addTooltip(WorkflowBundle.message("dialog.autoRefresh.interval.hint"))
+
         return builder.panel
     }
 
     fun getManualToken(): String = manualTokenField.text.trim()
 
     fun getRepoOverride(): String = repoField.text.trim()
+
+    fun getAutoRefreshEnabled(): Boolean = autoRefreshCheckBox.isSelected
+
+    fun getAutoRefreshInterval(): Int = intervalSpinner.value as Int
 }

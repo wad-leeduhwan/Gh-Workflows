@@ -5,6 +5,7 @@ import com.github.wadleeduhwan.ghworkflows.actions.RefreshAction
 import com.github.wadleeduhwan.ghworkflows.actions.SettingsAction
 import com.github.wadleeduhwan.ghworkflows.actions.TriggerWorkflowAction
 import com.github.wadleeduhwan.ghworkflows.auth.GitHubTokenManager
+import com.github.wadleeduhwan.ghworkflows.services.GitHubWorkflowService
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.project.DumbAware
@@ -48,6 +49,9 @@ class WorkflowToolWindowFactory : ToolWindowFactory, DumbAware {
         if (GitHubTokenManager.hasToken()) {
             panel.refresh()
         }
+
+        // Start auto-refresh timer based on persisted settings
+        project.getService(GitHubWorkflowService::class.java).startAutoRefresh()
     }
 
     override fun shouldBeAvailable(project: Project) = true

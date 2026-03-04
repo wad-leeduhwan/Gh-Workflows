@@ -46,6 +46,26 @@ class GitHubApiClient {
         post(url, body)
     }
 
+    fun rerunWorkflowRun(owner: String, repo: String, runId: Long): Result<Unit> = runCatching {
+        val url = "$baseUrl/repos/$owner/$repo/actions/runs/$runId/rerun"
+        post(url, "")
+    }
+
+    fun rerunFailedJobs(owner: String, repo: String, runId: Long): Result<Unit> = runCatching {
+        val url = "$baseUrl/repos/$owner/$repo/actions/runs/$runId/rerun-failed-jobs"
+        post(url, "")
+    }
+
+    fun cancelWorkflowRun(owner: String, repo: String, runId: Long): Result<Unit> = runCatching {
+        val url = "$baseUrl/repos/$owner/$repo/actions/runs/$runId/cancel"
+        post(url, "")
+    }
+
+    fun deleteWorkflowRun(owner: String, repo: String, runId: Long): Result<Unit> = runCatching {
+        val url = "$baseUrl/repos/$owner/$repo/actions/runs/$runId"
+        delete(url)
+    }
+
     private fun get(url: String): String {
         val token = GitHubTokenManager.getToken()
             ?: throw IllegalStateException("GitHub token not configured")
@@ -71,6 +91,27 @@ class GitHubApiClient {
             }
             .connect { request ->
                 request.write(body)
+                val connection = request.connection as HttpURLConnection
+                val responseCode = connection.responseCode
+                if (responseCode !in 200..299) {
+                    val errorBody = connection.errorStream?.bufferedReader()?.readText() ?: ""
+                    throw RuntimeException("HTTP $responseCode: $errorBody")
+                }
+            }
+    }
+
+    private fun delete(url: String) {
+        val token = GitHubTokenManager.getToken()
+            ?: throw IllegalStateException("GitHub token not configured")
+
+        HttpRequests.request(url)
+            .tuner { connection ->
+                (connection as HttpURLConnection).requestMethod = "DELETE"
+                connection.setRequestProperty("Authorization", "Bearer $token")
+                connection.setRequestProperty("Accept", "application/vnd.github+json")
+                connection.setRequestProperty("X-GitHub-Api-Version", "2022-11-28")
+            }
+            .connect { request ->
                 val connection = request.connection as HttpURLConnection
                 val responseCode = connection.responseCode
                 if (responseCode !in 200..299) {

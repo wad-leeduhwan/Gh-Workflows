@@ -1,0 +1,145 @@
+# GitHub Actions Workflow for automatic deployment when the plugin version is bumped.
+# Detects version changes in gradle.properties on push to main, then builds, tests, and publishes
+# the plugin to JetBrains Marketplace.
+#
+# Required secrets: PUBLISH_TOKEN, CERTIFICATE_CHAIN, PRIVATE_KEY, PRIVATE_KEY_PASSWORD
+
+name: Deploy
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+
+  # Detect whether pluginVersion in gradle.properties has changed
+  check-version:
+    name: Check version change
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.version.outputs.changed }}
+      version: ${{ steps.version.outputs.version }}
+    steps:
+
+      - name: Fetch Sources
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 2
+
+      - name: Check version bump
+        id: version
+        run: |
+          CURRENT=$(grep '^pluginVersion' gradle.properties | cut -d'=' -f2 | tr -d ' ')
+          PREVIOUS=$(git show HEAD~1:gradle.properties | grep '^pluginVersion' | cut -d'=' -f2 | tr -d ' ')
+
+          echo "current=$CURRENT"
+          echo "previous=$PREVIOUS"
+
+          if [ "$CURRENT" != "$PREVIOUS" ]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "version=$CURRENT" >> $GITHUB_OUTPUT
+            echo "Version changed: $PREVIOUS -> $CURRENT"
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "Version unchanged: $CURRENT"
+          fi
+
+  # Build, test, and verify the plugin
+  build-and-test:
+    name: Build & Test
+    needs: [ check-version ]
+    if: needs.check-version.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Maximize Build Space
+        uses: jlumbroso/free-disk-space@v1.3.1
+        with:
+          tool-cache: false
+          large-packages: false
+
+      - name: Fetch Sources
+        uses: actions/checkout@v6
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: zulu
+          java-version: 21
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+
+      - name: Build Plugin
+        run: ./gradlew buildPlugin
+
+      - name: Run Tests
+        run: ./gradlew check
+
+      - name: Verify Plugin
+        run: ./gradlew verifyPlugin
+
+      - name: Upload Plugin Artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: plugin-zip
+          path: ./build/distributions/*.zip
+
+  # Publish to JetBrains Marketplace and create a GitHub Release
+  deploy:
+    name: Deploy to Marketplace
+    needs: [ check-version, build-and-test ]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+
+      - name: Maximize Build Space
+        uses: jlumbroso/free-disk-space@v1.3.1
+        with:
+          tool-cache: false
+          large-packages: false
+
+      - name: Fetch Sources
+        uses: actions/checkout@v6
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: zulu
+          java-version: 21
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+        with:
+          cache-read-only: true
+
+      - name: Publish Plugin
+        env:
+          PUBLISH_TOKEN: ${{ secrets.PUBLISH_TOKEN }}
+          CERTIFICATE_CHAIN: ${{ secrets.CERTIFICATE_CHAIN }}
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          PRIVATE_KEY_PASSWORD: ${{ secrets.PRIVATE_KEY_PASSWORD }}
+        run: ./gradlew publishPlugin
+
+      - name: Extract Release Notes
+        id: changelog
+        run: |
+          RELEASE_NOTE="./build/tmp/release_note.txt"
+          mkdir -p "$(dirname "$RELEASE_NOTE")"
+          ./gradlew getChangelog --no-header --quiet --console=plain --output-file=$RELEASE_NOTE
+          echo "file=$RELEASE_NOTE" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ needs.check-version.outputs.version }}"
+
+          # Remove existing release/tag if it exists (in case of re-run)
+          gh release delete "$VERSION" --yes 2>/dev/null || true
+
+          gh release create "$VERSION" \
+            --title "$VERSION" \
+            --notes-file "${{ steps.changelog.outputs.file }}" \
+            ./build/distributions/*.zip

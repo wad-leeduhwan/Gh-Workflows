@@ -10,12 +10,23 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.project.Project
 import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.ScheduledFuture
+import java.util.concurrent.TimeUnit
 
 @Service(Service.Level.PROJECT)
 class GitHubWorkflowService(private val project: Project) : Disposable {
 
     private val apiClient = GitHubApiClient()
     private val listeners = CopyOnWriteArrayList<WorkflowDataListener>()
+    private val scheduler: ScheduledExecutorService =
+        Executors.newSingleThreadScheduledExecutor { r ->
+            Thread(r, "gh-workflows-auto-refresh").apply { isDaemon = true }
+        }
+
+    @Volatile
+    private var scheduledTask: ScheduledFuture<*>? = null
 
     /** 수동으로 지정한 repo. null이면 IDE Git에서 자동 감지 */
     @Volatile
@@ -91,6 +102,26 @@ class GitHubWorkflowService(private val project: Project) : Disposable {
         return apiClient.triggerWorkflowDispatch(repo.owner, repo.name, workflowId, ref, inputs)
     }
 
+    fun rerunWorkflowRun(runId: Long): Result<Unit> {
+        val repo = getRepo() ?: return Result.failure(IllegalStateException("No GitHub repository"))
+        return apiClient.rerunWorkflowRun(repo.owner, repo.name, runId)
+    }
+
+    fun rerunFailedJobs(runId: Long): Result<Unit> {
+        val repo = getRepo() ?: return Result.failure(IllegalStateException("No GitHub repository"))
+        return apiClient.rerunFailedJobs(repo.owner, repo.name, runId)
+    }
+
+    fun cancelWorkflowRun(runId: Long): Result<Unit> {
+        val repo = getRepo() ?: return Result.failure(IllegalStateException("No GitHub repository"))
+        return apiClient.cancelWorkflowRun(repo.owner, repo.name, runId)
+    }
+
+    fun deleteWorkflowRun(runId: Long): Result<Unit> {
+        val repo = getRepo() ?: return Result.failure(IllegalStateException("No GitHub repository"))
+        return apiClient.deleteWorkflowRun(repo.owner, repo.name, runId)
+    }
+
     fun addListener(listener: WorkflowDataListener) {
         listeners.add(listener)
     }
@@ -105,7 +136,28 @@ class GitHubWorkflowService(private val project: Project) : Disposable {
         }
     }
 
+    fun startAutoRefresh() {
+        stopAutoRefresh()
+        val settings = WorkflowSettingsState.getInstance(project)
+        if (!settings.autoRefreshEnabled) return
+
+        val intervalMinutes = settings.autoRefreshIntervalMinutes.toLong().coerceAtLeast(1)
+        scheduledTask = scheduler.scheduleWithFixedDelay(
+            { refreshAll() },
+            intervalMinutes,
+            intervalMinutes,
+            TimeUnit.MINUTES,
+        )
+    }
+
+    fun stopAutoRefresh() {
+        scheduledTask?.cancel(false)
+        scheduledTask = null
+    }
+
     override fun dispose() {
+        stopAutoRefresh()
+        scheduler.shutdownNow()
         listeners.clear()
     }
 

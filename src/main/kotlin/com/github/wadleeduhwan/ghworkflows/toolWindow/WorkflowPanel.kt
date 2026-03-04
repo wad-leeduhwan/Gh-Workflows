@@ -8,7 +8,10 @@ import com.github.wadleeduhwan.ghworkflows.services.GitHubWorkflowService
 import com.github.wadleeduhwan.ghworkflows.toolWindow.components.WorkflowTreeCellRenderer
 import com.github.wadleeduhwan.ghworkflows.toolWindow.components.WorkflowTreeNode
 import com.intellij.ide.BrowserUtil
+import com.intellij.notification.NotificationGroupManager
+import com.intellij.notification.NotificationType
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.ui.components.JBLabel
@@ -17,8 +20,11 @@ import com.intellij.ui.treeStructure.Tree
 import java.awt.BorderLayout
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
+import javax.swing.JMenuItem
 import javax.swing.JPanel
+import javax.swing.JPopupMenu
 import javax.swing.JProgressBar
+import javax.swing.JSeparator
 import javax.swing.SwingConstants
 import javax.swing.tree.DefaultMutableTreeNode
 import javax.swing.tree.DefaultTreeModel
@@ -57,6 +63,20 @@ class WorkflowPanel(
                         is WorkflowTreeNode.RunNode -> BrowserUtil.browse(userObj.run.htmlUrl)
                         is WorkflowTreeNode.WorkflowNode -> BrowserUtil.browse(userObj.workflow.htmlUrl)
                     }
+                }
+            }
+
+            override fun mousePressed(e: MouseEvent) = handlePopup(e)
+            override fun mouseReleased(e: MouseEvent) = handlePopup(e)
+
+            private fun handlePopup(e: MouseEvent) {
+                if (!e.isPopupTrigger) return
+                val path = tree.getPathForLocation(e.x, e.y) ?: return
+                tree.selectionPath = path
+                val node = path.lastPathComponent as? DefaultMutableTreeNode ?: return
+                when (val userObj = node.userObject) {
+                    is WorkflowTreeNode.RunNode -> showRunContextMenu(e, userObj.run)
+                    is WorkflowTreeNode.WorkflowNode -> showWorkflowContextMenu(e, userObj.workflow)
                 }
             }
         })
@@ -122,7 +142,8 @@ class WorkflowPanel(
             return
         }
 
-        // 성공: 선택 상태 저장 → 트리 갱신 → 선택 복원
+        // 성공: 확장/선택 상태 저장 → 트리 갱신 → 복원
+        val expandedIds = saveExpandedState()
         val selection = saveSelection()
 
         statusLabel.isVisible = false
@@ -147,11 +168,7 @@ class WorkflowPanel(
         }
 
         treeModel.reload()
-
-        for (i in 0 until tree.rowCount) {
-            tree.expandRow(i)
-        }
-
+        restoreExpandedState(expandedIds)
         restoreSelection(selection)
     }
 
@@ -193,9 +210,109 @@ class WorkflowPanel(
         }
     }
 
+    private fun saveExpandedState(): Set<Long> {
+        val expanded = mutableSetOf<Long>()
+        for (i in 0 until rootNode.childCount) {
+            val wfNode = rootNode.getChildAt(i) as? DefaultMutableTreeNode ?: continue
+            val wfObj = wfNode.userObject as? WorkflowTreeNode.WorkflowNode ?: continue
+            if (tree.isExpanded(TreePath(wfNode.path))) {
+                expanded.add(wfObj.workflow.id)
+            }
+        }
+        return expanded
+    }
+
+    private fun restoreExpandedState(expandedIds: Set<Long>) {
+        for (i in 0 until rootNode.childCount) {
+            val wfNode = rootNode.getChildAt(i) as? DefaultMutableTreeNode ?: continue
+            val wfObj = wfNode.userObject as? WorkflowTreeNode.WorkflowNode ?: continue
+            if (expandedIds.contains(wfObj.workflow.id)) {
+                tree.expandPath(TreePath(wfNode.path))
+            }
+        }
+    }
+
     private fun showStatus(message: String) {
         statusLabel.text = message
         statusLabel.isVisible = true
+    }
+
+    private fun showRunContextMenu(e: MouseEvent, run: WorkflowRun) {
+        val popup = JPopupMenu()
+        val isCompleted = run.status == "completed"
+        val isInProgress = run.status == "in_progress" || run.status == "queued" || run.status == "waiting"
+        val hasFailed = run.conclusion == "failure"
+
+        popup.add(JMenuItem(WorkflowBundle.message("action.rerun")).apply {
+            isEnabled = isCompleted
+            addActionListener { executeRunAction { service.rerunWorkflowRun(run.id) } }
+        })
+        popup.add(JMenuItem(WorkflowBundle.message("action.rerunFailed")).apply {
+            isEnabled = isCompleted && hasFailed
+            addActionListener { executeRunAction { service.rerunFailedJobs(run.id) } }
+        })
+        popup.add(JSeparator())
+        popup.add(JMenuItem(WorkflowBundle.message("action.cancel")).apply {
+            isEnabled = isInProgress
+            addActionListener { executeRunAction { service.cancelWorkflowRun(run.id) } }
+        })
+        popup.add(JSeparator())
+        popup.add(JMenuItem(WorkflowBundle.message("action.delete")).apply {
+            isEnabled = isCompleted
+            addActionListener {
+                val confirm = Messages.showYesNoDialog(
+                    project,
+                    WorkflowBundle.message("action.delete.confirm", run.runNumber),
+                    WorkflowBundle.message("action.delete"),
+                    Messages.getWarningIcon(),
+                )
+                if (confirm == Messages.YES) {
+                    executeRunAction { service.deleteWorkflowRun(run.id) }
+                }
+            }
+        })
+        popup.add(JSeparator())
+        popup.add(JMenuItem(WorkflowBundle.message("action.openInBrowser")).apply {
+            addActionListener { BrowserUtil.browse(run.htmlUrl) }
+        })
+        popup.show(tree, e.x, e.y)
+    }
+
+    private fun showWorkflowContextMenu(e: MouseEvent, workflow: Workflow) {
+        val popup = JPopupMenu()
+        popup.add(JMenuItem(WorkflowBundle.message("action.openInBrowser")).apply {
+            addActionListener { BrowserUtil.browse(workflow.htmlUrl) }
+        })
+        popup.show(tree, e.x, e.y)
+    }
+
+    private fun executeRunAction(action: () -> Result<Unit>) {
+        Thread({
+            action()
+                .onSuccess {
+                    ApplicationManager.getApplication().invokeLater {
+                        NotificationGroupManager.getInstance()
+                            .getNotificationGroup("GhWorkflows.Notification")
+                            .createNotification(
+                                WorkflowBundle.message("notification.action.success"),
+                                NotificationType.INFORMATION,
+                            )
+                            .notify(project)
+                        refresh()
+                    }
+                }
+                .onFailure { ex ->
+                    ApplicationManager.getApplication().invokeLater {
+                        NotificationGroupManager.getInstance()
+                            .getNotificationGroup("GhWorkflows.Notification")
+                            .createNotification(
+                                WorkflowBundle.message("notification.action.failure", ex.message ?: "Unknown error"),
+                                NotificationType.ERROR,
+                            )
+                            .notify(project)
+                    }
+                }
+        }, "gh-workflows-action").start()
     }
 
     override fun dispose() {

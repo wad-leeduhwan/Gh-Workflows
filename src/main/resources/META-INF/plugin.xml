@@ -4,6 +4,52 @@
     <name>Gh-Workflows</name>
     <vendor>wad-leeduhwan</vendor>
 
+    <description><![CDATA[
+    <p><b>Gh-Workflows</b> lets you browse, monitor, and trigger GitHub Actions workflows directly from your IntelliJ-based IDE.
+    Take full control of GitHub Actions without leaving your IDE.</p>
+
+    <h3>Features</h3>
+
+    <p><b>Workflow Browser</b><br/>
+    Tree view displaying all workflows and recent runs at a glance.
+    Each run shows its commit message, status icon, elapsed time, and branch name.</p>
+
+    <p><b>Trigger Workflows</b><br/>
+    Dispatch <code>workflow_dispatch</code> workflows with branch/tag selection and input parameters.
+    Supports <code>string</code>, <code>number</code>, <code>choice</code>, <code>boolean</code>, and <code>environment</code> input types.
+    Required inputs and default values are displayed automatically.</p>
+
+    <p><b>Status Icons</b><br/>
+    Intuitive icons for every workflow run state:
+    success, failure, in-progress, queued, cancelled, and skipped.</p>
+
+    <p><b>Open in Browser</b><br/>
+    Double-click any workflow or run node to jump directly to the GitHub page.</p>
+
+    <p><b>Auto-detect Repository</b><br/>
+    Automatically identifies the GitHub repository from your project's git remotes.
+    Supports SSH (<code>git@github.com:owner/repo.git</code>) and HTTPS formats.</p>
+
+    <p><b>Seamless Auth</b><br/>
+    Authenticates using your IntelliJ GitHub account (recommended) or a manual Personal Access Token as fallback.
+    PAT requires <code>repo</code> and <code>workflow</code> scopes, stored securely in the IDE's PasswordSafe.</p>
+
+    <h3>Getting Started</h3>
+    <ol>
+        <li>Open a project with a GitHub remote</li>
+        <li>Click the <b>GitHub Workflows</b> tab in the right sidebar</li>
+        <li>Browse workflows and recent runs in the tree view</li>
+        <li>Select a workflow and click <b>Run Workflow</b> to trigger it with custom inputs</li>
+    </ol>
+
+    <h3>Requirements</h3>
+    <ul>
+        <li>IntelliJ IDEA 2025.2 or later</li>
+        <li>Git and GitHub plugins enabled</li>
+        <li>GitHub account configured in IDE, or a Personal Access Token</li>
+    </ul>
+    ]]></description>
+
     <depends>com.intellij.modules.platform</depends>
     <depends>Git4Idea</depends>
     <depends>org.jetbrains.plugins.github</depends>
@@ -18,6 +64,9 @@
 
         <projectService
                 serviceImplementation="com.github.wadleeduhwan.ghworkflows.services.GitHubWorkflowService"/>
+
+        <projectService
+                serviceImplementation="com.github.wadleeduhwan.ghworkflows.services.WorkflowSettingsState"/>
 
         <notificationGroup id="GhWorkflows.Notification"
                            displayType="BALLOON"
