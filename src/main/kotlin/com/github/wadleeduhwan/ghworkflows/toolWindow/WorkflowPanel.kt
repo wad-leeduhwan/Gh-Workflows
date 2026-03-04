@@ -26,6 +26,7 @@ import javax.swing.JPopupMenu
 import javax.swing.JProgressBar
 import javax.swing.JSeparator
 import javax.swing.SwingConstants
+import javax.swing.SwingUtilities
 import javax.swing.tree.DefaultMutableTreeNode
 import javax.swing.tree.DefaultTreeModel
 import javax.swing.tree.TreePath
@@ -56,7 +57,7 @@ class WorkflowPanel(
 
         tree.addMouseListener(object : MouseAdapter() {
             override fun mouseClicked(e: MouseEvent) {
-                if (e.clickCount == 2) {
+                if (e.clickCount == 2 && !e.isPopupTrigger && SwingUtilities.isLeftMouseButton(e)) {
                     val path = tree.getPathForLocation(e.x, e.y) ?: return
                     val node = path.lastPathComponent as? DefaultMutableTreeNode ?: return
                     when (val userObj = node.userObject) {
