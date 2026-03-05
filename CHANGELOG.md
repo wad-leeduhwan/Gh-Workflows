@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+## [0.0.3]
+### Added
+- Failed run job details: expand failed runs to see individual job statuses
+- Auto-deploy GitHub Actions workflow: publishes to Marketplace on version bump
+
+### Fixed
+- Right-click no longer triggers double-click browser open
+
 ## [0.0.2]
 ### Added
 - Right-click context menu on workflow runs with Re-run, Re-run failed jobs, Cancel, Delete, and Open in Browser actions
@@ -13,8 +21,6 @@
 - Auto-refresh enable/disable and interval settings in Settings dialog
 - Settings persisted across IDE restarts via PersistentStateComponent
 - Tree expansion state preserved across refreshes
-- Auto-deploy GitHub Actions workflow: publishes to Marketplace on version bump
-- Failed run job details: expand failed runs to see individual job statuses
 
 ## [0.0.1]
 ### Added
