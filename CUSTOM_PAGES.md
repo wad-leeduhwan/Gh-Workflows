@@ -24,6 +24,7 @@ IDE를 떠나지 않고 GitHub Actions를 완벽하게 제어하세요.
 | **Auto-detect Repository** | Git remote에서 GitHub 리포지토리를 자동 감지 |
 | **Auto-Refresh** | 백그라운드 자동 갱신 (기본 10분, 설정에서 인터벌 변경 가능) |
 | **Run Management** | 우클릭 메뉴로 Re-run, Cancel, Delete 등 실행 관리 |
+| **Failed Run Jobs** | 실패한 실행을 확장하면 개별 job 상태를 확인 가능 |
 | **Seamless Auth** | IntelliJ GitHub 계정 또는 Personal Access Token으로 간편 인증 |
 | **Auto-Deploy** | 버전 변경 시 GitHub Actions가 자동으로 Marketplace에 배포 |
 
@@ -134,7 +135,28 @@ Workflows
 
 ---
 
-#### 4. Auto-Refresh — 자동 갱신
+#### 4. Failed Run Job Details — 실패 원인 추적
+
+실패한 워크플로우 실행을 확장하면 개별 job의 상태를 바로 확인할 수 있습니다.
+
+```
+▶ deploy.yml
+  ├─ #42 Fix login bug          ✅
+  ├─ ▼ #41 Add new feature      ❌   ← 실패한 run 확장
+  │    ├─ build                  ✅
+  │    ├─ test                   ❌   ← 실패한 job
+  │    └─ deploy                 ⊘   (skipped)
+  └─ #40 Update docs            ✅
+```
+
+- 실패한 run만 자동으로 job 정보를 로드합니다 (API 호출 최소화).
+- 각 job에 상태 아이콘(✅❌⊘ 등)이 표시됩니다.
+- job을 **더블 클릭**하면 GitHub의 해당 job 로그 페이지로 이동합니다.
+- job을 **우클릭**하면 Open in Browser 메뉴를 사용할 수 있습니다.
+
+---
+
+#### 5. Auto-Refresh — 자동 갱신
 
 백그라운드에서 설정된 인터벌마다 자동으로 워크플로우 데이터를 갱신합니다.
 
@@ -145,7 +167,7 @@ Workflows
 
 ---
 
-#### 5. Open in Browser — 브라우저에서 열기
+#### 6. Open in Browser — 브라우저에서 열기
 
 - 트리 뷰에서 워크플로우 또는 실행을 **더블 클릭**하면 GitHub 페이지가 열립니다.
 - 툴바의 **Open in Browser** 버튼으로도 동일한 동작이 가능합니다.
@@ -154,7 +176,7 @@ Workflows
 
 ---
 
-#### 6. Auto-detect Repository — 리포지토리 자동 감지
+#### 7. Auto-detect Repository — 리포지토리 자동 감지
 
 프로젝트의 Git remote를 분석하여 GitHub 리포지토리를 자동으로 감지합니다.
 
@@ -171,7 +193,7 @@ HTTPS: https://github.com/owner/repo
 
 ---
 
-#### 7. Auto-Deploy — 자동 배포
+#### 8. Auto-Deploy — 자동 배포
 
 `gradle.properties`의 `pluginVersion`이 변경된 커밋이 `main` 브랜치에 push되면 GitHub Actions가 자동으로 배포를 수행합니다.
 
@@ -196,7 +218,7 @@ push to main (version bumped)
 
 ---
 
-#### 8. Seamless Auth — 인증
+#### 9. Seamless Auth — 인증
 
 두 가지 인증 방식을 지원하며, 우선순위에 따라 자동 선택됩니다.
 
@@ -468,6 +490,8 @@ IntelliJ IDEA 2025.2 이상의 모든 IntelliJ 기반 IDE를 지원합니다:
 | 실행 노드 더블 클릭 | GitHub 실행 페이지 열기 |
 | 워크플로우 노드 더블 클릭 | GitHub 워크플로우 페이지 열기 |
 | 실행 노드 우클릭 | Re-run, Cancel, Delete 등 컨텍스트 메뉴 |
+| 실패한 실행 노드 확장 | 개별 job 상태 확인 |
+| Job 노드 더블 클릭 | GitHub job 로그 페이지 열기 |
 
 #### 유용한 팁
 

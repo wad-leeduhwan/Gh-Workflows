@@ -27,6 +27,10 @@ success, failure, in-progress, queued, cancelled, and skipped.
 Right-click any workflow run to re-run all jobs, re-run failed jobs, cancel, or delete.
 Dangerous actions like delete require confirmation before execution.
 
+**Failed Run Job Details**
+Failed workflow runs automatically expand to show individual jobs with their status icons.
+Quickly identify which job failed and double-click to open it on GitHub.
+
 **Open in Browser**
 Double-click any workflow or run node to jump directly to the GitHub page.
 

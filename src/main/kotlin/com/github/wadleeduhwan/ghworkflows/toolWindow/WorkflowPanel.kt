@@ -1,6 +1,7 @@
 package com.github.wadleeduhwan.ghworkflows.toolWindow
 
 import com.github.wadleeduhwan.ghworkflows.WorkflowBundle
+import com.github.wadleeduhwan.ghworkflows.api.models.Job
 import com.github.wadleeduhwan.ghworkflows.api.models.Workflow
 import com.github.wadleeduhwan.ghworkflows.api.models.WorkflowRun
 import com.github.wadleeduhwan.ghworkflows.auth.GitHubTokenManager
@@ -63,6 +64,7 @@ class WorkflowPanel(
                     when (val userObj = node.userObject) {
                         is WorkflowTreeNode.RunNode -> BrowserUtil.browse(userObj.run.htmlUrl)
                         is WorkflowTreeNode.WorkflowNode -> BrowserUtil.browse(userObj.workflow.htmlUrl)
+                        is WorkflowTreeNode.JobNode -> BrowserUtil.browse(userObj.job.htmlUrl)
                     }
                 }
             }
@@ -78,6 +80,7 @@ class WorkflowPanel(
                 when (val userObj = node.userObject) {
                     is WorkflowTreeNode.RunNode -> showRunContextMenu(e, userObj.run)
                     is WorkflowTreeNode.WorkflowNode -> showWorkflowContextMenu(e, userObj.workflow)
+                    is WorkflowTreeNode.JobNode -> showJobContextMenu(e, userObj.job)
                 }
             }
         })
@@ -162,7 +165,14 @@ class WorkflowPanel(
                 workflowNode.add(DefaultMutableTreeNode(WorkflowBundle.message("status.noRuns")))
             } else {
                 for (run in runs) {
-                    workflowNode.add(DefaultMutableTreeNode(WorkflowTreeNode.RunNode(run)))
+                    val runNode = DefaultMutableTreeNode(WorkflowTreeNode.RunNode(run))
+                    if (run.conclusion == "failure") {
+                        val jobs = service.workflowRunJobs[run.id] ?: emptyList()
+                        for (job in jobs) {
+                            runNode.add(DefaultMutableTreeNode(WorkflowTreeNode.JobNode(job)))
+                        }
+                    }
+                    workflowNode.add(runNode)
                 }
             }
             rootNode.add(workflowNode)
@@ -211,24 +221,40 @@ class WorkflowPanel(
         }
     }
 
-    private fun saveExpandedState(): Set<Long> {
-        val expanded = mutableSetOf<Long>()
+    private fun saveExpandedState(): Pair<Set<Long>, Set<Long>> {
+        val expandedWorkflows = mutableSetOf<Long>()
+        val expandedRuns = mutableSetOf<Long>()
         for (i in 0 until rootNode.childCount) {
             val wfNode = rootNode.getChildAt(i) as? DefaultMutableTreeNode ?: continue
             val wfObj = wfNode.userObject as? WorkflowTreeNode.WorkflowNode ?: continue
             if (tree.isExpanded(TreePath(wfNode.path))) {
-                expanded.add(wfObj.workflow.id)
+                expandedWorkflows.add(wfObj.workflow.id)
+            }
+            for (j in 0 until wfNode.childCount) {
+                val runNode = wfNode.getChildAt(j) as? DefaultMutableTreeNode ?: continue
+                val runObj = runNode.userObject as? WorkflowTreeNode.RunNode ?: continue
+                if (tree.isExpanded(TreePath(runNode.path))) {
+                    expandedRuns.add(runObj.run.id)
+                }
             }
         }
-        return expanded
+        return expandedWorkflows to expandedRuns
     }
 
-    private fun restoreExpandedState(expandedIds: Set<Long>) {
+    private fun restoreExpandedState(state: Pair<Set<Long>, Set<Long>>) {
+        val (expandedWorkflows, expandedRuns) = state
         for (i in 0 until rootNode.childCount) {
             val wfNode = rootNode.getChildAt(i) as? DefaultMutableTreeNode ?: continue
             val wfObj = wfNode.userObject as? WorkflowTreeNode.WorkflowNode ?: continue
-            if (expandedIds.contains(wfObj.workflow.id)) {
+            if (expandedWorkflows.contains(wfObj.workflow.id)) {
                 tree.expandPath(TreePath(wfNode.path))
+            }
+            for (j in 0 until wfNode.childCount) {
+                val runNode = wfNode.getChildAt(j) as? DefaultMutableTreeNode ?: continue
+                val runObj = runNode.userObject as? WorkflowTreeNode.RunNode ?: continue
+                if (expandedRuns.contains(runObj.run.id)) {
+                    tree.expandPath(TreePath(runNode.path))
+                }
             }
         }
     }
@@ -283,6 +309,14 @@ class WorkflowPanel(
         val popup = JPopupMenu()
         popup.add(JMenuItem(WorkflowBundle.message("action.openInBrowser")).apply {
             addActionListener { BrowserUtil.browse(workflow.htmlUrl) }
+        })
+        popup.show(tree, e.x, e.y)
+    }
+
+    private fun showJobContextMenu(e: MouseEvent, job: Job) {
+        val popup = JPopupMenu()
+        popup.add(JMenuItem(WorkflowBundle.message("action.openInBrowser")).apply {
+            addActionListener { BrowserUtil.browse(job.htmlUrl) }
         })
         popup.show(tree, e.x, e.y)
     }

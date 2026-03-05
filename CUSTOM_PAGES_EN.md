@@ -24,6 +24,7 @@ Take full control of GitHub Actions without leaving your IDE.
 | **Auto-detect Repository** | Automatically detects GitHub repository from git remotes |
 | **Auto-Refresh** | Background auto-refresh at configurable interval (default: 10 min) |
 | **Run Management** | Right-click context menu for Re-run, Cancel, Delete, and more |
+| **Failed Run Jobs** | Expand failed runs to see individual job statuses |
 | **Seamless Auth** | Uses your IntelliJ GitHub account or a manual Personal Access Token |
 | **Auto-Deploy** | Automatically publishes to Marketplace via GitHub Actions on version bump |
 
@@ -134,7 +135,28 @@ Right-click a run node in the tree view to open the context menu.
 
 ---
 
-#### 4. Auto-Refresh
+#### 4. Failed Run Job Details
+
+Expand a failed workflow run to see the status of each individual job.
+
+```
+▶ deploy.yml
+  ├─ #42 Fix login bug          ✅
+  ├─ ▼ #41 Add new feature      ❌   ← Expand failed run
+  │    ├─ build                  ✅
+  │    ├─ test                   ❌   ← Failed job
+  │    └─ deploy                 ⊘   (skipped)
+  └─ #40 Update docs            ✅
+```
+
+- Job information is only loaded for failed runs (minimizing API calls).
+- Each job displays a status icon (✅❌⊘, etc.).
+- **Double-click** a job to open its log page on GitHub.
+- **Right-click** a job to access the Open in Browser menu.
+
+---
+
+#### 5. Auto-Refresh
 
 Automatically refreshes workflow data in the background at a configurable interval.
 
@@ -145,7 +167,7 @@ Automatically refreshes workflow data in the background at a configurable interv
 
 ---
 
-#### 5. Open in Browser
+#### 6. Open in Browser
 
 - **Double-click** a workflow or run in the tree view to open the corresponding GitHub page.
 - The **Open in Browser** toolbar button provides the same functionality.
@@ -154,7 +176,7 @@ Automatically refreshes workflow data in the background at a configurable interv
 
 ---
 
-#### 6. Auto-detect Repository
+#### 7. Auto-detect Repository
 
 Automatically detects the GitHub repository by analyzing the project's git remotes.
 
@@ -171,7 +193,7 @@ HTTPS: https://github.com/owner/repo
 
 ---
 
-#### 7. Auto-Deploy
+#### 8. Auto-Deploy
 
 When a commit with a changed `pluginVersion` in `gradle.properties` is pushed to the `main` branch, GitHub Actions automatically handles the deployment.
 
@@ -196,7 +218,7 @@ push to main (version bumped)
 
 ---
 
-#### 8. Seamless Auth
+#### 9. Seamless Auth
 
 Two authentication methods are supported, automatically selected by priority.
 
@@ -470,6 +492,8 @@ By default, data is **automatically refreshed every 10 minutes** in the backgrou
 | Double-click a run node | Open the GitHub run page |
 | Double-click a workflow node | Open the GitHub workflow page |
 | Right-click a run node | Context menu: Re-run, Cancel, Delete, etc. |
+| Expand a failed run node | View individual job statuses |
+| Double-click a job node | Open the GitHub job log page |
 
 #### Useful Tips
 

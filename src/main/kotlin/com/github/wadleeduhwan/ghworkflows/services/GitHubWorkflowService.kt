@@ -1,6 +1,7 @@
 package com.github.wadleeduhwan.ghworkflows.services
 
 import com.github.wadleeduhwan.ghworkflows.api.GitHubApiClient
+import com.github.wadleeduhwan.ghworkflows.api.models.Job
 import com.github.wadleeduhwan.ghworkflows.api.models.Workflow
 import com.github.wadleeduhwan.ghworkflows.api.models.WorkflowRun
 import com.github.wadleeduhwan.ghworkflows.git.GitHubRepo
@@ -38,6 +39,10 @@ class GitHubWorkflowService(private val project: Project) : Disposable {
 
     @Volatile
     var workflowRuns: Map<Long, List<WorkflowRun>> = emptyMap()
+        private set
+
+    @Volatile
+    var workflowRunJobs: Map<Long, List<Job>> = emptyMap()
         private set
 
     @Volatile
@@ -81,6 +86,22 @@ class GitHubWorkflowService(private val project: Project) : Disposable {
                         }
                 }
                 workflowRuns = runsMap
+
+                // Load jobs for failed runs
+                val jobsMap = mutableMapOf<Long, List<Job>>()
+                for (runs in runsMap.values) {
+                    for (run in runs) {
+                        if (run.conclusion == "failure") {
+                            apiClient.listWorkflowRunJobs(repo.owner, repo.name, run.id)
+                                .onSuccess { jobs -> jobsMap[run.id] = jobs }
+                                .onFailure { e ->
+                                    thisLogger().warn("Failed to load jobs for run #${run.runNumber}", e)
+                                }
+                        }
+                    }
+                }
+                workflowRunJobs = jobsMap
+
                 isLoading = false
                 lastError = null
                 notifyListeners()

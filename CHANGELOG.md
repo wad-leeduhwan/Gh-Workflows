@@ -14,6 +14,7 @@
 - Settings persisted across IDE restarts via PersistentStateComponent
 - Tree expansion state preserved across refreshes
 - Auto-deploy GitHub Actions workflow: publishes to Marketplace on version bump
+- Failed run job details: expand failed runs to see individual job statuses
 
 ## [0.0.1]
 ### Added

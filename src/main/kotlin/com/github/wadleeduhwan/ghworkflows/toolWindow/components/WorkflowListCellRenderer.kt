@@ -1,5 +1,6 @@
 package com.github.wadleeduhwan.ghworkflows.toolWindow.components
 
+import com.github.wadleeduhwan.ghworkflows.api.models.Job
 import com.github.wadleeduhwan.ghworkflows.api.models.Workflow
 import com.github.wadleeduhwan.ghworkflows.api.models.WorkflowRun
 import com.github.wadleeduhwan.ghworkflows.icons.WorkflowIcons
@@ -42,6 +43,14 @@ class WorkflowTreeCellRenderer : ColoredTreeCellRenderer() {
                     append("  ($it)", SimpleTextAttributes.GRAYED_ITALIC_ATTRIBUTES)
                 }
             }
+            is WorkflowTreeNode.JobNode -> {
+                val job = userObj.job
+                icon = StatusIcon.forRun(job.status, job.conclusion)
+                append(job.name)
+                job.conclusion?.let {
+                    append("  [$it]", SimpleTextAttributes.GRAYED_ATTRIBUTES)
+                }
+            }
             is String -> {
                 append(userObj, SimpleTextAttributes.GRAYED_ITALIC_ATTRIBUTES)
             }
@@ -74,5 +83,9 @@ sealed class WorkflowTreeNode {
 
     data class RunNode(val run: WorkflowRun) : WorkflowTreeNode() {
         override fun toString() = "#${run.runNumber} ${run.displayTitle}"
+    }
+
+    data class JobNode(val job: Job) : WorkflowTreeNode() {
+        override fun toString() = job.name
     }
 }

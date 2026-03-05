@@ -61,6 +61,16 @@ class GitHubApiClient {
         post(url, "")
     }
 
+    fun listWorkflowRunJobs(
+        owner: String,
+        repo: String,
+        runId: Long,
+    ): Result<List<Job>> = runCatching {
+        val url = "$baseUrl/repos/$owner/$repo/actions/runs/$runId/jobs?per_page=100"
+        val response = get(url)
+        json.decodeFromString<JobsResponse>(response).jobs
+    }
+
     fun deleteWorkflowRun(owner: String, repo: String, runId: Long): Result<Unit> = runCatching {
         val url = "$baseUrl/repos/$owner/$repo/actions/runs/$runId"
         delete(url)
