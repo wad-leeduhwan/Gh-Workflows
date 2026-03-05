@@ -23,8 +23,20 @@
     Intuitive icons for every workflow run state:
     success, failure, in-progress, queued, cancelled, and skipped.</p>
 
+    <p><b>Run Management (Context Menu)</b><br/>
+    Right-click any workflow run to re-run all jobs, re-run failed jobs, cancel, or delete.
+    Dangerous actions like delete require confirmation before execution.</p>
+
+    <p><b>Failed Run Job Details</b><br/>
+    Failed workflow runs automatically expand to show individual jobs with their status icons.
+    Quickly identify which job failed and double-click to open it on GitHub.</p>
+
     <p><b>Open in Browser</b><br/>
     Double-click any workflow or run node to jump directly to the GitHub page.</p>
+
+    <p><b>Auto-Refresh</b><br/>
+    Automatically refreshes workflow data in the background at a configurable interval (default: 10 minutes).
+    Enable or disable auto-refresh and adjust the interval from the Settings dialog.</p>
 
     <p><b>Auto-detect Repository</b><br/>
     Automatically identifies the GitHub repository from your project's git remotes.
