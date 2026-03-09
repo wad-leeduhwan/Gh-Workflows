@@ -12,7 +12,8 @@ Take full control of GitHub Actions without leaving your IDE.
 
 **Workflow Browser**
 Tree view displaying all workflows and recent runs at a glance.
-Each run shows its commit message, status icon, elapsed time, and branch name.
+Each run uses a two-line layout: the first line shows run number, commit message, and status icon;
+the second line shows who triggered it, elapsed time, and branch name.
 
 **Trigger Workflows**
 Dispatch `workflow_dispatch` workflows with branch/tag selection and input parameters.

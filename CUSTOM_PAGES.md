@@ -46,16 +46,25 @@ IDE를 떠나지 않고 GitHub Actions를 완벽하게 제어하세요.
 
 ```
 Workflows
-├── CI Build [.github/workflows/ci.yml]
-│   ├── #142  feat: Add login API        ✅  (2시간 전)  main
-│   ├── #141  fix: Null pointer issue     ❌  (1일 전)    dev
-│   └── #140  chore: Update deps          ✅  (3일 전)    main
-├── Deploy [.github/workflows/deploy.yml]
-│   ├── #85   Release v2.1.0             ⏳  (5분 전)    release
-│   └── #84   Release v2.0.0             ✅  (7일 전)    release
-└── Nightly Test [.github/workflows/nightly.yml]
+├── CI Build                              ci.yml
+│   ├── ✅ #142  feat: Add login API
+│   │            octocat  ·  2시간 전  ·  main
+│   ├── ❌ #141  fix: Null pointer issue
+│   │            developer  ·  1일 전  ·  dev
+│   └── ✅ #140  chore: Update deps
+│                octocat  ·  3일 전  ·  main
+├── Deploy                                deploy.yml
+│   ├── ⏳ #85   Release v2.1.0
+│   │            deployer  ·  5분 전  ·  release
+│   └── ✅ #84   Release v2.0.0
+│                deployer  ·  7일 전  ·  release
+└── Nightly Test                          nightly.yml
     └── 실행 기록 없음
 ```
+
+각 실행은 2줄로 표시됩니다:
+- **1줄**: 상태 아이콘 + 실행 번호 + 커밋 메시지
+- **2줄**: 트리거한 사용자 · 경과 시간 · 브랜치명
 
 **상태 아이콘 안내:**
 
@@ -69,7 +78,7 @@ Workflows
 | ⊘ | Skipped | 조건 불일치로 건너뜀 |
 
 - 워크플로우당 최근 10개의 실행 이력을 표시합니다.
-- 새로고침 시 기존 선택 상태가 유지됩니다.
+- 새로고침 시 기존 선택 상태와 펼침 상태가 유지됩니다.
 - 로딩 중 프로그레스 바가 표시됩니다.
 
 ---
@@ -331,7 +340,7 @@ cd Gh-Workflows
 1. 오른쪽 사이드바에서 **GitHub Workflows** 도구 창을 엽니다.
 2. 리포지토리의 모든 워크플로우가 트리 구조로 표시됩니다.
 3. 각 워크플로우를 펼치면 최근 10개의 실행 이력이 나타납니다.
-4. 실행 정보: 커밋 메시지, 상태 아이콘, 경과 시간, 브랜치명
+4. 실행 정보: 1줄에 상태 아이콘·실행 번호·커밋 메시지, 2줄에 트리거 사용자·경과 시간·브랜치명
 
 #### 워크플로우 새로고침
 

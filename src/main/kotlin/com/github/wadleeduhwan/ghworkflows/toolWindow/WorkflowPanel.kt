@@ -55,6 +55,7 @@ class WorkflowPanel(
         tree.cellRenderer = WorkflowTreeCellRenderer()
         tree.isRootVisible = false
         tree.showsRootHandles = true
+        tree.rowHeight = 0 // variable row heights for 2-line run nodes
 
         tree.addMouseListener(object : MouseAdapter() {
             override fun mouseClicked(e: MouseEvent) {

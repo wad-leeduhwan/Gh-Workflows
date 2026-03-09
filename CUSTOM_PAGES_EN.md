@@ -46,16 +46,25 @@ Browse all workflows in your repository as a tree structure from the **GitHub Wo
 
 ```
 Workflows
-├── CI Build [.github/workflows/ci.yml]
-│   ├── #142  feat: Add login API        ✅  (2h ago)   main
-│   ├── #141  fix: Null pointer issue     ❌  (1d ago)   dev
-│   └── #140  chore: Update deps          ✅  (3d ago)   main
-├── Deploy [.github/workflows/deploy.yml]
-│   ├── #85   Release v2.1.0             ⏳  (5m ago)   release
-│   └── #84   Release v2.0.0             ✅  (7d ago)   release
-└── Nightly Test [.github/workflows/nightly.yml]
+├── CI Build                              ci.yml
+│   ├── ✅ #142  feat: Add login API
+│   │            octocat  ·  2h ago  ·  main
+│   ├── ❌ #141  fix: Null pointer issue
+│   │            developer  ·  1d ago  ·  dev
+│   └── ✅ #140  chore: Update deps
+│                octocat  ·  3d ago  ·  main
+├── Deploy                                deploy.yml
+│   ├── ⏳ #85   Release v2.1.0
+│   │            deployer  ·  5m ago  ·  release
+│   └── ✅ #84   Release v2.0.0
+│                deployer  ·  7d ago  ·  release
+└── Nightly Test                          nightly.yml
     └── No runs found
 ```
+
+Each run uses a two-line layout:
+- **Line 1**: Status icon + run number + commit message
+- **Line 2**: Triggered by (actor) · elapsed time · branch name
 
 **Status Icon Reference:**
 
@@ -69,7 +78,7 @@ Workflows
 | ⊘ | Skipped | Skipped due to condition mismatch |
 
 - Displays up to 10 recent runs per workflow.
-- Selection state is preserved across refreshes.
+- Selection and expansion state are preserved across refreshes.
 - A progress bar is shown while loading.
 
 ---
@@ -333,7 +342,7 @@ Open Project → Click Sidebar Tab → Workflows Auto-load
 1. Open the **GitHub Workflows** tool window from the right sidebar.
 2. All workflows in the repository are displayed in a tree structure.
 3. Expand any workflow to see its 10 most recent runs.
-4. Run info includes: commit message, status icon, elapsed time, and branch name.
+4. Run info: line 1 shows status icon, run number, and commit message; line 2 shows actor, elapsed time, and branch name.
 
 #### Refreshing Workflows
 
