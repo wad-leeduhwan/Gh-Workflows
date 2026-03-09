@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+## [0.0.4]
+### Added
+- Two-line rendering for workflow run nodes: line 1 shows status icon, run number, and commit message; line 2 shows actor, elapsed time, and branch name
+
 ## [0.0.3]
 ### Added
 - Failed run job details: expand failed runs to see individual job statuses

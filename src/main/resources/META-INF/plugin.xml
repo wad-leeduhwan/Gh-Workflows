@@ -12,7 +12,8 @@
 
     <p><b>Workflow Browser</b><br/>
     Tree view displaying all workflows and recent runs at a glance.
-    Each run shows its commit message, status icon, elapsed time, and branch name.</p>
+    Each run uses a two-line layout: line 1 shows run number and commit message with status icon;
+    line 2 shows who triggered it, elapsed time, and branch name.</p>
 
     <p><b>Trigger Workflows</b><br/>
     Dispatch <code>workflow_dispatch</code> workflows with branch/tag selection and input parameters.
