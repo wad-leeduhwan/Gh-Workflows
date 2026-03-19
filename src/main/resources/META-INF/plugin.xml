@@ -35,6 +35,10 @@
     <p><b>Open in Browser</b><br/>
     Double-click any workflow or run node to jump directly to the GitHub page.</p>
 
+    <p><b>Favorites</b><br/>
+    Save frequently used workflow URLs as favorites for quick access.
+    Manage your favorites from the toolbar — add, remove, and open saved URLs instantly.</p>
+
     <p><b>Auto-Refresh</b><br/>
     Automatically refreshes workflow data in the background at a configurable interval (default: 10 minutes).
     Enable or disable auto-refresh and adjust the interval from the Settings dialog.</p>

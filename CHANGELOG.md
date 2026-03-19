@@ -4,6 +4,13 @@
 
 ## [Unreleased]
 
+## [0.0.5]
+### Added
+- Favorites: save frequently used workflow URLs for quick access from the toolbar
+
+### Fixed
+- Branch/tag dropdown arrow-key navigation no longer breaks filtering in the trigger dialog
+
 ## [0.0.4]
 ### Added
 - Two-line rendering for workflow run nodes: line 1 shows status icon, run number, and commit message; line 2 shows actor, elapsed time, and branch name
