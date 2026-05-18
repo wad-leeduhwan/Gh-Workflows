@@ -18,11 +18,12 @@ IDE를 떠나지 않고 GitHub Actions를 완벽하게 제어하세요.
 | 기능 | 설명 |
 |------|------|
 | **Workflow Browser** | 트리 뷰로 모든 워크플로우와 최근 실행 내역을 한눈에 확인 |
-| **Trigger Workflows** | `workflow_dispatch` 워크플로우를 브랜치/태그 선택 및 입력 파라미터와 함께 실행 |
+| **Trigger Workflows** | `workflow_dispatch` 워크플로우를 브랜치/태그 선택 및 입력 파라미터와 함께 실행. 자동완성으로 브랜치/태그를 검색하고 아이콘으로 종류 구분 |
 | **Status Icons** | 성공, 실패, 진행 중, 대기, 취소, 건너뜀 상태를 아이콘으로 직관적 표시 |
 | **Open in Browser** | 워크플로우나 실행을 더블 클릭하여 GitHub에서 바로 열기 |
 | **Auto-detect Repository** | Git remote에서 GitHub 리포지토리를 자동 감지 |
 | **Auto-Refresh** | 백그라운드 자동 갱신 (기본 10분, 설정에서 인터벌 변경 가능) |
+| **Favorites** | 자주 사용하는 URL을 즐겨찾기로 관리. 툴바 오른쪽 별 아이콘 클릭 시 저장된 URL 즐겨찾기가 표시되며, ✏️ 편집 버튼으로 이름/URL 수정, ✕ 버튼으로 제거. [+ Add] 버튼으로 이름과 URL을 입력하여 추가. 마우스 호버 시 행 하이라이트. 클릭 시 브라우저에서 열기. GitHub 인증과 무관하게 동작 |
 | **Run Management** | 우클릭 메뉴로 Re-run, Cancel, Delete 등 실행 관리 |
 | **Failed Run Jobs** | 실패한 실행을 확장하면 개별 job 상태를 확인 가능 |
 | **Seamless Auth** | IntelliJ GitHub 계정 또는 Personal Access Token으로 간편 인증 |
@@ -93,11 +94,11 @@ Workflows
 ┌─────────────────────────────────────────┐
 │  Run workflow: deploy.yml               │
 │                                         │
-│  Use workflow from:  [main         ▼]   │
-│                       main              │
-│                       develop           │
-│                       tag: v2.1.0       │
-│                       tag: v2.0.0       │
+│  Use workflow from:  [main_____________]│
+│                       🌿 main   branch  │
+│                       🌿 develop branch │
+│                       🏷  v2.1.0  tag   │
+│                       🏷  v2.0.0  tag   │
 │                                         │
 │  ─────────── Inputs ───────────         │
 │                                         │
@@ -126,11 +127,28 @@ Workflows
 
 - 필수 입력(*) 항목과 기본값이 자동으로 표시됩니다.
 - 브랜치뿐 아니라 태그에서도 워크플로우를 실행할 수 있습니다.
+- 브랜치/태그 입력 필드는 IntelliJ 자동완성을 사용해 타이핑할 때마다 매칭 항목이 안정적으로 표시되며, 브랜치는 🌿, 태그는 🏷 아이콘으로 구분됩니다. 목록에 없는 ref도 직접 입력하면 그대로 사용됩니다.
 - 워크플로우 YAML을 직접 파싱하여 입력 정의를 읽어옵니다.
 
 ---
 
-#### 3. Run Management — 실행 관리
+#### 3. Favorites — URL 즐겨찾기
+
+자주 사용하는 URL을 즐겨찾기로 관리할 수 있습니다. 툴바 오른쪽의 **★ Favorites** 아이콘을 클릭하면 팝업이 열립니다.
+
+- 팝업에 저장된 URL 즐겨찾기가 표시됩니다
+- 즐겨찾기 이름을 클릭하면 브라우저에서 해당 URL이 열립니다
+- 각 항목의 **✏️ 편집 버튼**을 클릭하여 이름과 URL을 수정할 수 있습니다
+- 각 항목의 **✕ 버튼**을 클릭하여 즐겨찾기에서 제거합니다
+- 마우스를 항목 위에 올리면 해당 행이 하이라이트되어 선택 중인 항목을 쉽게 구분할 수 있습니다
+- **[+ Add]** 버튼을 클릭하여 이름과 URL을 입력해 새 즐겨찾기를 추가합니다
+- 즐겨찾기 설정은 IDE 재시작 후에도 유지됩니다
+- GitHub 토큰/워크플로우와 무관하게 독립적으로 동작합니다
+- 즐겨찾기가 비어있으면 "No favorites yet" 안내 메시지가 표시됩니다
+
+---
+
+#### 4. Run Management — 실행 관리
 
 트리 뷰에서 실행 노드를 **우클릭**하면 컨텍스트 메뉴가 나타납니다.
 
@@ -144,7 +162,7 @@ Workflows
 
 ---
 
-#### 4. Failed Run Job Details — 실패 원인 추적
+#### 5. Failed Run Job Details — 실패 원인 추적
 
 실패한 워크플로우 실행을 확장하면 개별 job의 상태를 바로 확인할 수 있습니다.
 
@@ -165,7 +183,7 @@ Workflows
 
 ---
 
-#### 5. Auto-Refresh — 자동 갱신
+#### 6. Auto-Refresh — 자동 갱신
 
 백그라운드에서 설정된 인터벌마다 자동으로 워크플로우 데이터를 갱신합니다.
 
@@ -176,7 +194,7 @@ Workflows
 
 ---
 
-#### 6. Open in Browser — 브라우저에서 열기
+#### 7. Open in Browser — 브라우저에서 열기
 
 - 트리 뷰에서 워크플로우 또는 실행을 **더블 클릭**하면 GitHub 페이지가 열립니다.
 - 툴바의 **Open in Browser** 버튼으로도 동일한 동작이 가능합니다.
@@ -185,7 +203,7 @@ Workflows
 
 ---
 
-#### 7. Auto-detect Repository — 리포지토리 자동 감지
+#### 8. Auto-detect Repository — 리포지토리 자동 감지
 
 프로젝트의 Git remote를 분석하여 GitHub 리포지토리를 자동으로 감지합니다.
 
@@ -202,7 +220,7 @@ HTTPS: https://github.com/owner/repo
 
 ---
 
-#### 8. Auto-Deploy — 자동 배포
+#### 9. Auto-Deploy — 자동 배포
 
 `gradle.properties`의 `pluginVersion`이 변경된 커밋이 `main` 브랜치에 push되면 GitHub Actions가 자동으로 배포를 수행합니다.
 
@@ -227,7 +245,7 @@ push to main (version bumped)
 
 ---
 
-#### 9. Seamless Auth — 인증
+#### 10. Seamless Auth — 인증
 
 두 가지 인증 방식을 지원하며, 우선순위에 따라 자동 선택됩니다.
 
@@ -490,6 +508,7 @@ IntelliJ IDEA 2025.2 이상의 모든 IntelliJ 기반 IDE를 지원합니다:
 | **Run Workflow** | 선택한 워크플로우 트리거 | 툴바 |
 | **Open in Browser** | 선택 항목을 GitHub에서 열기 | 툴바 |
 | **Settings** | 인증 및 리포지토리 설정 | 툴바 |
+| **Favorites** | URL 즐겨찾기 팝업 열기 (저장된 URL 목록 표시, 클릭→브라우저, ✏️ 편집, ✕ 제거, + Add, 호버 하이라이트) | 툴바 (오른쪽) |
 
 #### 마우스 인터랙션
 

@@ -17,12 +17,21 @@ the second line shows who triggered it, elapsed time, and branch name.
 
 **Trigger Workflows**
 Dispatch `workflow_dispatch` workflows with branch/tag selection and input parameters.
+The ref field uses IntelliJ's native autocomplete — start typing to filter, and branches and tags are distinguished with dedicated icons in the popup.
 Supports `string`, `number`, `choice`, `boolean`, and `environment` input types.
 Required inputs and default values are displayed automatically.
 
 **Status Icons**
 Intuitive icons for every workflow run state:
 success, failure, in-progress, queued, cancelled, and skipped.
+
+**Favorites**
+Save frequently used URLs as favorites for quick access.
+Click the star icon to open the Favorites popup, which shows your saved URL favorites with edit and ✕ buttons.
+Click the edit icon to modify a favorite's name or URL; click ✕ to remove it.
+Click [+ Add] to add a new favorite by entering a name and URL; click any favorite to open it in the browser.
+Hovering over a favorite highlights the row for clear visual feedback.
+Favorites persist across IDE restarts and work independently of GitHub authentication.
 
 **Run Management (Context Menu)**
 Right-click any workflow run to re-run all jobs, re-run failed jobs, cancel, or delete.

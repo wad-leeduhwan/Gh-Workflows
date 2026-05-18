@@ -21,10 +21,14 @@ import com.intellij.ui.SeparatorComponent
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBTextField
+import com.intellij.util.textCompletion.DefaultTextCompletionValueDescriptor
+import com.intellij.util.textCompletion.TextFieldWithCompletion
+import com.intellij.util.textCompletion.ValuesCompletionProvider
 import com.intellij.util.ui.FormBuilder
 import com.intellij.util.ui.JBUI
 import java.awt.Dimension
 import javax.swing.DefaultComboBoxModel
+import javax.swing.Icon
 import javax.swing.JComponent
 
 class TriggerWorkflowAction(
@@ -109,25 +113,29 @@ private class TriggerDialog(
     defaultBranch: String,
 ) : DialogWrapper(project) {
 
-    private val refCombo: ComboBox<String>
+    private data class RefItem(val name: String, val isTag: Boolean)
+
+    private val refItems: List<RefItem> =
+        branches.map { RefItem(it, isTag = false) } + tags.map { RefItem(it, isTag = true) }
+
+    private val refField: TextFieldWithCompletion
     private val inputComponents = mutableMapOf<String, InputComponent>()
 
     init {
         title = WorkflowBundle.message("dialog.trigger.titleWithName", workflow.name)
         setOKButtonText(WorkflowBundle.message("dialog.trigger.runButton"))
 
-        // 브랜치 + 태그 목록 (Branch: xxx, Tag: xxx 로 구분)
-        val refItems = mutableListOf<String>()
-        refItems.addAll(branches)
-        if (tags.isNotEmpty()) {
-            for (tag in tags) {
-                refItems.add("tag:$tag")
-            }
+        val descriptor = object : DefaultTextCompletionValueDescriptor<RefItem>() {
+            override fun getLookupString(item: RefItem): String = item.name
+            override fun getIcon(item: RefItem): Icon =
+                if (item.isTag) AllIcons.Nodes.Tag else AllIcons.Vcs.Branch
+            override fun getTypeText(item: RefItem): String =
+                if (item.isTag) "tag" else "branch"
         }
-        refCombo = ComboBox(DefaultComboBoxModel(refItems.toTypedArray())).apply {
+        val provider = ValuesCompletionProvider.ValuesCompletionProviderDumbAware(descriptor, refItems)
+        // 마지막 forceAutoPopup=true: 입력 시 자동완성 팝업을 항상 띄움
+        refField = TextFieldWithCompletion(project, provider, defaultBranch, true, true, true).apply {
             preferredSize = Dimension(350, 30)
-            isEditable = true
-            selectedItem = defaultBranch
         }
 
         init()
@@ -146,7 +154,7 @@ private class TriggerDialog(
         // Use workflow from - 브랜치/태그 선택
         builder.addLabeledComponent(
             WorkflowBundle.message("dialog.trigger.useWorkflowFrom"),
-            refCombo,
+            refField,
         )
 
         // Inputs 섹션
@@ -208,9 +216,10 @@ private class TriggerDialog(
     }
 
     fun getRef(): String {
-        val selected = refCombo.selectedItem?.toString()?.trim() ?: "main"
-        // "tag:v1.0" 형식이면 태그 이름만 추출
-        return if (selected.startsWith("tag:")) selected.removePrefix("tag:") else selected
+        val typed = refField.text.trim()
+        if (typed.isEmpty()) return "main"
+        // 입력값이 목록과 정확히 일치하면 그 이름을, 아니면 사용자가 입력한 ref를 그대로 사용
+        return refItems.find { it.name == typed }?.name ?: typed
     }
 
     fun getInputValues(): Map<String, String> {

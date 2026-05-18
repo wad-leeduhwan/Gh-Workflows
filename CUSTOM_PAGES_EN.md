@@ -18,11 +18,12 @@ Take full control of GitHub Actions without leaving your IDE.
 | Feature | Description |
 |---------|-------------|
 | **Workflow Browser** | Tree view showing all workflows and recent runs at a glance |
-| **Trigger Workflows** | Run `workflow_dispatch` workflows with branch/tag selection and input parameters |
+| **Trigger Workflows** | Run `workflow_dispatch` workflows with branch/tag selection and input parameters. Native IntelliJ autocomplete with dedicated icons for branches and tags |
 | **Status Icons** | Intuitive icons for success, failure, in-progress, queued, cancelled, and skipped states |
 | **Open in Browser** | Double-click any workflow or run to open it on GitHub |
 | **Auto-detect Repository** | Automatically detects GitHub repository from git remotes |
 | **Auto-Refresh** | Background auto-refresh at configurable interval (default: 10 min) |
+| **Favorites** | Save frequently used URLs as favorites via the toolbar star icon popup. Click any favorite to open it in the browser. Edit with ✏️ button, remove with ✕ button, add new ones with [+ Add] by entering a name and URL. Hover highlights the row for clear visual feedback. Works independently of GitHub authentication |
 | **Run Management** | Right-click context menu for Re-run, Cancel, Delete, and more |
 | **Failed Run Jobs** | Expand failed runs to see individual job statuses |
 | **Seamless Auth** | Uses your IntelliJ GitHub account or a manual Personal Access Token |
@@ -93,11 +94,11 @@ Trigger workflows with `workflow_dispatch` events directly from the IDE.
 ┌─────────────────────────────────────────┐
 │  Run workflow: deploy.yml               │
 │                                         │
-│  Use workflow from:  [main         ▼]   │
-│                       main              │
-│                       develop           │
-│                       tag: v2.1.0       │
-│                       tag: v2.0.0       │
+│  Use workflow from:  [main_____________]│
+│                       🌿 main   branch  │
+│                       🌿 develop branch │
+│                       🏷  v2.1.0  tag   │
+│                       🏷  v2.0.0  tag   │
 │                                         │
 │  ─────────── Inputs ───────────         │
 │                                         │
@@ -126,11 +127,28 @@ Trigger workflows with `workflow_dispatch` events directly from the IDE.
 
 - Required inputs (*) and default values are displayed automatically.
 - Workflows can be triggered from both branches and tags.
+- The branch/tag field uses IntelliJ's native autocomplete — typing reliably filters matches, and branches and tags are distinguished by dedicated icons. Any ref not in the list can still be typed and used as-is.
 - Workflow YAML is parsed directly to read input definitions.
 
 ---
 
-#### 3. Run Management
+#### 3. Favorites — URL Bookmarks
+
+Save frequently used URLs as favorites via the **★ Favorites** icon on the right side of the toolbar. Click it to open a popup.
+
+- The popup shows your saved URL favorites
+- Click a favorite's name to open the URL in the browser
+- Click the **✏️ edit button** to modify a favorite's name or URL
+- Click the **✕ button** next to any item to remove it from favorites
+- Hovering over a favorite highlights the row for clear visual feedback
+- Click **[+ Add]** to add a new favorite by entering a name and URL
+- Favorites persist across IDE restarts
+- Works independently of GitHub authentication (no token required)
+- If no favorites are saved, a "No favorites yet" message is shown
+
+---
+
+#### 4. Run Management
 
 Right-click a run node in the tree view to open the context menu.
 
@@ -144,7 +162,7 @@ Right-click a run node in the tree view to open the context menu.
 
 ---
 
-#### 4. Failed Run Job Details
+#### 5. Failed Run Job Details
 
 Expand a failed workflow run to see the status of each individual job.
 
@@ -165,7 +183,7 @@ Expand a failed workflow run to see the status of each individual job.
 
 ---
 
-#### 5. Auto-Refresh
+#### 6. Auto-Refresh
 
 Automatically refreshes workflow data in the background at a configurable interval.
 
@@ -176,7 +194,7 @@ Automatically refreshes workflow data in the background at a configurable interv
 
 ---
 
-#### 6. Open in Browser
+#### 7. Open in Browser
 
 - **Double-click** a workflow or run in the tree view to open the corresponding GitHub page.
 - The **Open in Browser** toolbar button provides the same functionality.
@@ -185,7 +203,7 @@ Automatically refreshes workflow data in the background at a configurable interv
 
 ---
 
-#### 7. Auto-detect Repository
+#### 8. Auto-detect Repository
 
 Automatically detects the GitHub repository by analyzing the project's git remotes.
 
@@ -202,7 +220,7 @@ HTTPS: https://github.com/owner/repo
 
 ---
 
-#### 8. Auto-Deploy
+#### 9. Auto-Deploy
 
 When a commit with a changed `pluginVersion` in `gradle.properties` is pushed to the `main` branch, GitHub Actions automatically handles the deployment.
 
@@ -227,7 +245,7 @@ push to main (version bumped)
 
 ---
 
-#### 9. Seamless Auth
+#### 10. Seamless Auth
 
 Two authentication methods are supported, automatically selected by priority.
 
@@ -492,6 +510,7 @@ By default, data is **automatically refreshed every 10 minutes** in the backgrou
 | **Run Workflow** | Trigger the selected workflow | Toolbar |
 | **Open in Browser** | Open the selected item on GitHub | Toolbar |
 | **Settings** | Configure authentication and repository | Toolbar |
+| **Favorites** | Open the URL Favorites popup (view saved URLs, click→browser, ✏️ edit, ✕ remove, + Add, hover highlight) | Toolbar (right) |
 
 #### Mouse Interactions
 

@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+## [0.0.7]
+### Fixed
+- Trigger dialog: replaced the editable branch/tag combo with IntelliJ's native autocomplete field, so typing reliably filters the list and the popup stays in sync with the input. Branches and tags now show dedicated icons.
+
 ## [0.0.5]
 ### Added
 - Favorites: save frequently used workflow URLs for quick access from the toolbar
